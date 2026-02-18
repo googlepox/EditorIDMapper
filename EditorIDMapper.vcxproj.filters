@@ -9,6 +9,42 @@
     <ClCompile Include="..\xOBSE\obse\obse_common\SafeWrite.cpp">
       <Filter>obse</Filter>
     </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameObjects.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameTypes.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameAPI.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\Utilities.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameData.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameForms.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\Script.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameBSExtraData.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameExtraData.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameActorValues.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\NiNodes.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xOBSE\obse\obse\GameTasks.cpp">
+      <Filter>obse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="exports.def" />

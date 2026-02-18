@@ -3,10 +3,71 @@
 
 #include "obse/PluginAPI.h"
 #include "obse_common/SafeWrite.h"
+#include "obse/GameObjects.h"
 
 IDebugLog        gLog("EditorIDMapper.log");
 PluginHandle     g_pluginHandle = kPluginHandle_Invalid;
 OBSEMessagingInterface* g_msgIntfc = nullptr;
+OBSEScriptInterface* g_scriptIntfc = nullptr;
+OBSEStringVarInterface* g_strVarIntfc = nullptr;
+
+static bool Cmd_GetRuntimeEditorID_Execute(COMMAND_ARGS)
+{
+    TESForm* BaseObject = NULL;
+
+    if (!g_scriptIntfc->ExtractArgsEx(paramInfo, arg1, opcodeOffsetPtr, scriptObj, eventList, &BaseObject) ||
+        (thisObj == NULL && BaseObject == NULL))
+    {
+        g_strVarIntfc->Assign(PASS_COMMAND_ARGS, "");
+        return true;
+    }
+
+    UInt32 FormID = 0;
+    if (thisObj)
+        FormID = thisObj->refID;
+    else if (BaseObject)
+        FormID = BaseObject->refID;
+
+    const char* EditorID = EditorIDMapper::ReverseLookup(FormID);
+    if (EditorID == NULL && BaseObject)
+        EditorID = BaseObject->GetEditorID();
+
+    if (EditorID == NULL && BaseObject)
+        EditorID = BaseObject->GetEditorID2();
+
+    if (EditorID == NULL && BaseObject)
+        EditorID = BaseObject->GetEditorName();
+
+    if (EditorID == NULL)
+        g_strVarIntfc->Assign(PASS_COMMAND_ARGS, "");
+    else
+    {
+        g_strVarIntfc->Assign(PASS_COMMAND_ARGS, EditorID);
+
+        if (IsConsoleMode())
+            Console_Print("EditorID: %s", EditorID);
+    }
+
+    return true;
+}
+
+static ParamInfo kParams_GetRuntimeEditorID[1] =
+{
+    {	"base object",	kParamType_InventoryObject,	1	},
+};
+
+CommandInfo kCommandInfo_GetRuntimeEditorID =
+{
+    "GetRuntimeEditorID",
+    "",
+    0,
+    "Returns the editorID of form",
+    0,
+    1,
+    kParams_GetRuntimeEditorID,
+
+    Cmd_GetRuntimeEditorID_Execute
+};
 
 // ============================================================
 //  Message handler
@@ -80,7 +141,7 @@ extern "C"
         info->version = 1;
 
         if (obse->isEditor)
-            return false;
+            return true;
 
         if (obse->obseVersion < OBSE_VERSION_INTEGER)
             return false;
@@ -99,6 +160,8 @@ extern "C"
 
         g_pluginHandle = obse->GetPluginHandle();
 
+        obse->RegisterCommand(&kCommandInfo_GetRuntimeEditorID);
+
         g_msgIntfc = (OBSEMessagingInterface*)obse->QueryInterface(kInterface_Messaging);
         if (!g_msgIntfc)
         {
@@ -106,6 +169,7 @@ extern "C"
             return false;
         }
         g_msgIntfc->RegisterListener(g_pluginHandle, "OBSE", MessageHandlerOBSE);
+
         _MESSAGE("EditorIDMapper loaded successfully");
         return true;
     }

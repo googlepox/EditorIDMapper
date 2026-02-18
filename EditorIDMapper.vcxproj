@@ -108,6 +108,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\xOBSE\obse\obse\GameActorValues.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameAPI.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameBSExtraData.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameData.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameExtraData.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameForms.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameObjects.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameTasks.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\GameTypes.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\NiNodes.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\Script.cpp" />
+    <ClCompile Include="..\xOBSE\obse\obse\Utilities.cpp" />
     <ClCompile Include="..\xOBSE\obse\obse_common\SafeWrite.cpp" />
     <ClCompile Include="dllmain.c">
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

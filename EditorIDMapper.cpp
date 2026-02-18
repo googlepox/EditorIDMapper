@@ -150,13 +150,33 @@ static void __fastcall Hook_SetEditorID(TESForm* form, void* edx, const char* ed
     g_editorIDMap.Capture(editorID, form);
 }
 
+static void __fastcall Hook_SetEditorIDCELL(TESForm* form, void* edx, const char* editorID)
+{
+    g_editorIDMap.Capture(editorID, form);
+    ThisStdCall(0x4C9FC0, form, editorID);
+}
+
+static void __fastcall Hook_SetEditorIDWRLD(TESForm* form, void* edx, const char* editorID)
+{
+    g_editorIDMap.Capture(editorID, form);
+    ThisStdCall(0x4EF3C0, form, editorID);
+}
+
 void EditorIDMapper_Install()
 {
     for (UInt32 i = 0; i < kVTBLTableSize; ++i)
     {
         UInt32 addr = kVTBLTable[i].address + kSetEditorID_VTBLOffset;
         SafeWrite32(addr, (UInt32)Hook_SetEditorID);
-        _MESSAGE("EditorIDMapper: patched %s at %08X", kVTBLTable[i].className, addr);
+        _MESSAGE("EditorIDMapper: patched %s at 0x%08X", kVTBLTable[i].className, addr);
     }
+    UInt32 addrWRLD = 0xA48374;
+    SafeWrite32(addrWRLD, (UInt32)Hook_SetEditorIDWRLD);
+    _MESSAGE("EditorIDMapper: patched TESWorldspace at 0x00A48374");
+
+    UInt32 addrCELL = 0xA46AAC;
+    SafeWrite32(addrCELL, (UInt32)Hook_SetEditorIDCELL);
+    _MESSAGE("EditorIDMapper: patched TESObjectCELL at 0x00A46AAC");
+
     _MESSAGE("EditorIDMapper: %u VTBLs patched", kVTBLTableSize);
 }
