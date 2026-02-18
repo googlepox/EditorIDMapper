@@ -48,7 +48,7 @@ void MessageHandlerOBSE(OBSEMessagingInterface::Message* msg)
     if (!msg)
         return;
 
-    if (msg->type == OBSEMessagingInterface::kMessage_PreLoadGame)
+    if (msg->type == OBSEMessagingInterface::kMessage_GameInitialized)
     {
         _MESSAGE("EditorIDMapper: broadcasting ready (%u entries)",
             g_editorIDMap.Size());
