@@ -84,6 +84,7 @@ struct VTBLEntry
 };
 
 static const UInt32 kSetEditorID_VTBLOffset = 0xD8;
+static const UInt32 kGetEditorID_VTBLOffset = 0xD4;
 
 static const VTBLEntry kVTBLTable[] =
 {
@@ -144,7 +145,7 @@ static const VTBLEntry kVTBLTable[] =
 
 static const UInt32 kVTBLTableSize = sizeof(kVTBLTable) / sizeof(kVTBLTable[0]);
 
-// __fastcall: ecx = this (TESForm*), edx = unused, first stack arg = editorID
+
 static void __fastcall Hook_SetEditorID(TESForm* form, void* edx, const char* editorID)
 {
     g_editorIDMap.Capture(editorID, form);
@@ -153,13 +154,18 @@ static void __fastcall Hook_SetEditorID(TESForm* form, void* edx, const char* ed
 static void __fastcall Hook_SetEditorIDCELL(TESForm* form, void* edx, const char* editorID)
 {
     g_editorIDMap.Capture(editorID, form);
-    ThisStdCall(0x4C9FC0, form, editorID);
+    ThisStdCall(0x004C9FC0, form, editorID);
 }
 
 static void __fastcall Hook_SetEditorIDWRLD(TESForm* form, void* edx, const char* editorID)
 {
     g_editorIDMap.Capture(editorID, form);
-    ThisStdCall(0x4EF3C0, form, editorID);
+    ThisStdCall(0x004EF3C0, form, editorID);
+}
+
+static void __fastcall Hook_GetEditorID(TESForm* form, void* edx, const char* editorID)
+{
+    g_editorIDMap.Capture(editorID, form);
 }
 
 void EditorIDMapper_Install()
@@ -168,7 +174,7 @@ void EditorIDMapper_Install()
     {
         UInt32 addr = kVTBLTable[i].address + kSetEditorID_VTBLOffset;
         SafeWrite32(addr, (UInt32)Hook_SetEditorID);
-        _MESSAGE("EditorIDMapper: patched %s at 0x%08X", kVTBLTable[i].className, addr);
+        _MESSAGE("EditorIDMapper: patched SetEditorID for %s at 0x%08X", kVTBLTable[i].className, addr);
     }
     UInt32 addrWRLD = 0xA48374;
     SafeWrite32(addrWRLD, (UInt32)Hook_SetEditorIDWRLD);

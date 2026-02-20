@@ -48,8 +48,11 @@ namespace EditorIDMapper
     // FormID -> EditorID reverse query (synchronous).
     // Caller fills QueryData::formID, dispatches kMessage_ReverseQuery,
     // reads back QueryData::editorID (points into EditorIDMapper's
-    // internal storage — do not free or modify).
+    // internal storage  do not free or modify).
     static const UInt32 kMessage_ReverseQuery = 'EMRQ';
+
+    static const UInt32 kMessage_RequestReady = 'EMRR';
+
 
     // ---- Interop struct used for both query types ----
 
@@ -85,8 +88,10 @@ namespace EditorIDMapper
     {
         s_msgIntfc = msgIntfc;
         s_pluginHandle = pluginHandle;
-        msgIntfc->RegisterListener(pluginHandle, nullptr, MessageHandler);
+
     }
+
+
 
     // ---- IsReady ----
 
@@ -128,7 +133,7 @@ namespace EditorIDMapper
 
     // ---- ReverseLookup: FormID -> EditorID ----
     // Returns nullptr if not found or EditorIDMapper not ready.
-    // The returned pointer is owned by EditorIDMapper — do not free.
+    // The returned pointer is owned by EditorIDMapper do not free.
 
     inline const char* ReverseLookup(UInt32 formID)
     {

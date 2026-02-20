@@ -101,6 +101,22 @@ void MessageHandler(OBSEMessagingInterface::Message* msg)
 
         return;
     }
+
+    if (msg->type == EditorIDMapper::kMessage_RequestReady)
+    {
+        if (EditorIDMapper::s_ready)
+        {
+            _MESSAGE("EditorIDMapper: replying to ready request");
+
+            EditorIDMapper::s_msgIntfc->Dispatch(
+                g_pluginHandle,
+                EditorIDMapper::kMessage_Ready,
+                nullptr,
+                0,
+                nullptr
+            );
+        }
+    }
 }
 
 void MessageHandlerOBSE(OBSEMessagingInterface::Message* msg)
