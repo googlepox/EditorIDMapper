@@ -12,6 +12,8 @@
 
 EditorIDMap g_editorIDMap;
 
+static const char g_emptyString[] = "";
+
 // ============================================================
 //  EditorIDMap implementation
 // ============================================================
@@ -83,8 +85,8 @@ struct VTBLEntry
     const char* className;
 };
 
-static const UInt32 kSetEditorID_VTBLOffset = 0xD8;
 static const UInt32 kGetEditorID_VTBLOffset = 0xD4;
+static const UInt32 kSetEditorID_VTBLOffset = 0xD8;
 
 static const VTBLEntry kVTBLTable[] =
 {
@@ -163,26 +165,71 @@ static void __fastcall Hook_SetEditorIDWRLD(TESForm* form, void* edx, const char
     ThisStdCall(0x004EF3C0, form, editorID);
 }
 
-static void __fastcall Hook_GetEditorID(TESForm* form, void* edx, const char* editorID)
+const char* __cdecl GetEditorIDFromMapper(TESForm* form)
 {
-    g_editorIDMap.Capture(editorID, form);
+    return g_editorIDMap.ReverseLookup(form->refID);
+}
+
+static void __fastcall Hook_GetEditorIDWRLD(TESForm* form, void* edx)
+{
+    const char* editorID = (const char*)ThisStdCall(0x4EF3B0, form);
+    if (!editorID && form)
+    {
+        editorID = GetEditorIDFromMapper(form);
+    }
+}
+
+static void __fastcall Hook_GetEditorIDCELL(TESForm* form, void* edx)
+{
+    const char* editorID = (const char*)ThisStdCall(0x4CCBC0, form);
+    if (!editorID && form)
+    {
+        editorID = GetEditorIDFromMapper(form);
+    }
+}
+
+__declspec(naked) void Hook_ReturnEmptyString()
+{
+    __asm {
+        push ecx
+        push ecx              // arg: TESForm* this
+        call GetEditorIDFromMapper
+        add  esp, 4
+        pop  ecx
+        test eax, eax
+        jz   original
+        retn
+        original :
+        mov  eax, offset g_emptyString
+            retn
+    }
 }
 
 void EditorIDMapper_Install()
 {
     for (UInt32 i = 0; i < kVTBLTableSize; ++i)
     {
-        UInt32 addr = kVTBLTable[i].address + kSetEditorID_VTBLOffset;
-        SafeWrite32(addr, (UInt32)Hook_SetEditorID);
-        _MESSAGE("EditorIDMapper: patched SetEditorID for %s at 0x%08X", kVTBLTable[i].className, addr);
+        UInt32 addrSet = kVTBLTable[i].address + kSetEditorID_VTBLOffset;
+        SafeWrite32(addrSet, (UInt32)Hook_SetEditorID);
+        _MESSAGE("EditorIDMapper: patched SetEditorID for %s at 0x%08X", kVTBLTable[i].className, addrSet);
     }
-    UInt32 addrWRLD = 0xA48374;
-    SafeWrite32(addrWRLD, (UInt32)Hook_SetEditorIDWRLD);
-    _MESSAGE("EditorIDMapper: patched TESWorldspace at 0x00A48374");
+    UInt32 addrWRLDSet = 0xA48374;
+    SafeWrite32(addrWRLDSet, (UInt32)Hook_SetEditorIDWRLD);
+    _MESSAGE("EditorIDMapper: patched SetEditorID for TESWorldspace at 0x00A48374");
 
-    UInt32 addrCELL = 0xA46AAC;
-    SafeWrite32(addrCELL, (UInt32)Hook_SetEditorIDCELL);
-    _MESSAGE("EditorIDMapper: patched TESObjectCELL at 0x00A46AAC");
+    UInt32 addrCELLSet = 0xA46AAC;
+    SafeWrite32(addrCELLSet, (UInt32)Hook_SetEditorIDCELL);
+    _MESSAGE("EditorIDMapper: patched SetEditorID for TESObjectCELL at 0x00A46AAC");
+
+    UInt32 addrWRLDGet = 0xA48370;
+    SafeWrite32(addrWRLDGet, (UInt32)Hook_GetEditorIDWRLD);
+    _MESSAGE("EditorIDMapper: patched GetEditorID for TESWorldspace at 0x00A48370");
+
+    UInt32 addrCELLGet = 0xA46AA8;
+    SafeWrite32(addrCELLGet, (UInt32)Hook_GetEditorIDCELL);
+    _MESSAGE("EditorIDMapper: patched GetEditorID for TESObjectCELL at 0x00A46AA8");
+
+    WriteRelJump(0x004129A0, (UInt32)&Hook_ReturnEmptyString);
 
     _MESSAGE("EditorIDMapper: %u VTBLs patched", kVTBLTableSize);
 }
